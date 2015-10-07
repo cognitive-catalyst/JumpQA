@@ -1,0 +1,6 @@
+Template ID	Template Class	Answer Size	Match Size	Question	Search 1	Search 2	Words 1	Words 2	Words 3	Clean
+0	TextTemplate	paragraph	sentence	What is [s0]?	\b(:.*)?is (an?|the)\b		bad.words	boundary.words		true
+1	TextTemplate	paragraph	sentence	What is [s1] [s2]?	\ba condition\b		bad.words	boundary.words		true
+2	TextTemplate	paragraph	sentence	What are the [s1]?	\bsymptoms of.*?(?=( (is|are|include|may|should|can|:)\b|$))		bad.words	boundary.words		true
+3	TextTemplate	paragraph	sentence	What should I do if [s1]?	(?<=if\b) you.+?(?=[,.$])				replace.words	false
+4	TextTemplate	paragraph	sentence	How can I [s1]?	(?<=you can (do to )?).+?(?=[,.$])				replace.words	false
