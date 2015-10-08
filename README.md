@@ -31,7 +31,7 @@ To install this project, you will need:
 ##Installation
 Clone the repository from git. You'll need your IBM ID and password.
 
-    git clone https://hub.jazz.net/git/willbeason/JumpQA
+    git clone https://github.com/cognitive-catalyst/JumpQA
 
 You will be prompted for your IBM ID and password. Once downloaded, run the install script in the main directory.
 
@@ -49,6 +49,7 @@ Once the corpus is in a JSON, JumpQA can process the corpus and generate ground 
 
 
 ###Converting Corpus to JSON
+0. cd into JumpQa/
 1. Edit `corpus2json.properties`. The file should look something like:
 ```
 input=sample/
@@ -60,7 +61,8 @@ output=sample/output.json
 2. Run `java -jar target/corpus2json-0.1.0.jar`. If you have a different version, replace `0.1.0` with the one you are using. 
 
 ###Using JumpQA
-1. Edit `jumpqa.properties`. The file should look something like:
+0. cd into JumpQa/
+1. CD Edit `jumpqa.properties`. The file should look something like:
 ```
 corpus=health-corpus.json
 templates=templates.csv
