@@ -1,0 +1,61 @@
+== Apply templates to corpus to create QA set
+
+Template Store:
+This is a set of templates to use in question generation. Each template has three main parts: a regular expression, question templates, and heuristics settings.
+
+The regular expressions vary widely in complexity. A simple one might be:
+\brent a \w+\b
+whereas a somewhat complex one might be
+\bis (one of )?the \w{2,}est \w+ in [A-Z][\w-]+(( \w+)? [A-Z]\w+)?\b
+
+Some regular expressions are dynamically generated, so
+\b([[activity]])ing\b
+\b([[dishes]])\b
+might expand to be thousands of characters long and include all travel activities and dishes:
+\b(camp|boat|fish|horseback rid|...[[many more terms]]...|parasail|fly)ing\b
+\b(doener|chops|tacos|curries|...[[many more terms]]]...|sashimi|pickles)\b
+
+Question templates are instructions on creating a question once the template has been matched to a sentence. These, too can widely vary in complexity. For the food example, a question template might appear as
+What dishes is [0] known for?
+where the [0] is replaced with the location referenced in the PAU title. So if a document about Austin had the sentence "Tacodeli is a local Austin restaurant that serves tacos.", the generated question would be "What dishes is Austin known for?" with the answer "Tacodeli is a local restaurant that serves tacos."
+
+Heuristics are settings unique to templates. These can be settings like that a regular expression must be preceded by a proper noun, or that a sentence must have a minimum word length.
+
+Corpus:
+JumpQA operates on a directory of PAUs. It could be easily modified to operate on any format, but it is most useful when the document still has a PAU title.
+
+Select next template:
+While there are still more templates to use, go to the next one. In some cases, template regular expressions are dynamically generated or altered in this step.
+
+Select next match of template in corpus:
+Iterates through every sentence in the corpus to look for a match to the template's regular expression.
+
+Create question and answer using template:
+When a match is found, use the template to generate a question and answer pair. Each template contains a instructions for creating a question from a match it has found. Once the question/answer pair has been generated, it is added to the QA store. The answer can be the sentence which matched the regular expression, the paragraph containing the sentence, or the entire PAU depending on the template settings.
+
+Return QA store:
+Returns the QA store in the requested format. Most commonly this is a CSV with comma-delimited columns for things such as Question Text, Answer Text, PAU ID, etc.
+
+
+== Apply heuristics to identify bad QA pairs
+
+Select next feature in QA pair goodness model:
+Not all templates have all heuristics enabled. While there are more heuristics which have not been run, choose the next one.
+
+Get match's score on feature:
+This process varies by feature. A heuristic may be something binary like whether a template is preceded by a proper noun, how many words came before the template match in the sentence, or how many troublesome words appear before the match. Each possible condition is associated with a score, with lower scores being worse.
+
+Get combined score for match:
+The feature scores are combined to produce a single score for the question/answer pair. Sometimes (based on a template setting) a feature automatically makes the score 0, and the QA pair is rejected.
+
+Score > threshold?:
+Is the score less than some threshold? This can be a global setting or a template-specific setting. Some templates (such as those with an entire PAU as the answer) may have lower thresholds than ones with a single sentence answer.
+
+Reject QA Pair:
+The QA pair is rejected and no longer considered.
+
+Add QA Pair to store:
+The QA pair is added to the list of QA pairs. Information such as PAU title and PAU ID are stored in this object.
+
+
+

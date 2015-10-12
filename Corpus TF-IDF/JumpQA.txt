@@ -1,0 +1,71 @@
+The Automatic Generation of Questions from a Structured Corpus
+
+Summary:
+Given a structured corpus, this method takes a structured corpus and user questions about the corpus.
+
+Terms:
+TFIDF: Term-frequency inverse-document-frequency, a common method for determining words important to individual documents in a collection of documents.
+Hypernym/Hyponym: Words which satisfy the relationship "[[hyponym]] is a type of [[hypernym]]". For example, because "dog is a type of mammal" the word "dog" is a hyponym of "mammal" and the word "mammal" is a hypernym of "dog".
+
+Inputs:
+Input 1: A segmented, structured corpus. We get this when we ingest a corpus into Watson. Documents are each segmented into several PAUs based on headers, subheaders, etc.
+
+Input 2: A set of user questions about the corpus.
+
+Method:
+1) Look for parallel structure across documents. Fire example, a collection of documents about diseases may include many with a "symptoms" subheader or a the subheader "eat" in travel documents.
+
+2) Partition corpus by those structures. This creates groups of PAUs about similar aspects of many things. For example, one partition could be about disease symtoms for a set of diseases or about eating in many different locations.
+
+3) Determine terms important to the corpus partitions. Calculate term frequency inverse document frequency (TFIDF) for every term, treating each partition as a document. Use a minimum threshold of TFIDF score to narrow down the number of terms.
+
+Traditionally, TFIDF only considers the original documents rather than collections of sub-documents.
+
+TFIDF is a common NLP tool to determine words important to specific documents in a corpus. For a given term, document, and corpus, the TFIDF is the product of the augmented frequency of the term in the document (TF) and the inverse document frequency (IDF).
+
+The TF of a term in a document is
+0.5 + 0.5 * (the number of times the term appears in the document) / (the most times any term appears in the document).
+
+The IDF of a term in a corpus is
+LOG(number of documents in the corpus / number of documents in which the term appears).
+
+4) Construct an ontology tree linking all of the terms from the hypernym hierarchy of each.
+
+For example, suppose the terms "enchiladas", "tacos", "brunch", "lunch", "bistro", and "deli" were found to be important in the Eat corpus partition. In real data there are many, many more words.
+
+Enchiladas -> Dish -> Nutriment -> Food -> Substance -> Matter -> Physical Entity -> Entity
+Tacos -> Dish -> Nutriment -> Food -> Substance -> Matter -> Physical Entity -> Entity
+Brunch -> Meal -> Nutriment -> Food -> Substance -> Matter -> Physical Entity -> Entity
+Lunch -> Meal -> Nutriment -> Food -> Substance -> Matter -> Physical Entity -> Entity
+Bistro -> Restaurant -> Building -> Structure -> Artifact -> Whole -> Object -> Physical Entity -> Entity
+Deli -> Restaurant -> Building -> Structure -> Artifact -> Whole -> Object -> Physical Entity -> Entity
+
+5) Find large sets of items clustered together under words used in the corpus.
+
+In the above example, we have a "bistro"/"deli" cluster under "restaurant", a "enchiladas"/"tacos" cluster under "dish", a "brunch"/"lunch" cluster under "meal", and a "enchiladas"/"tacos"/"brunch"/"lunch" cluster under "nutriment".
+
+Now consider the user questions. Since "nutriment" is a much rarer term in questions than it's parent, "food", we consider the terms to be clustered under "food".
+
+So we have "restaruant", "dish", "meal", and "food" clusters.
+
+6) Generate question templates which look for hyponyms and question frames based on the clusters. Do this by finding user questions which match the cluster names in the user generated questions.
+
+Suppose someone asked the question "What dishes is London known for?" The word "dishes" is recognized in the sentence as a cluster name, and London is recognized as a location.
+
+From each cluster, we can generate a template which looks for the hyponyms and returns a question asking about the hypernyms. We can create a general question "What dishes is [[Location]] known for?" which looks for the words "enchiladas" and "tacos" in PAUs with the subtitle "Eat" and creates questions which point to those paragraphs as answers.
+
+7) Generate questions with the templates.
+
+For example, suppose we have a PAU with the title "Austin : Eat : Etc." which contains the following text:
+
+"""
+Kerbey Lane Cafe. 24 hours. This Austin favorite offers legendary pancakes and an extensive vegan menu that includes breakfast tacos, chai pancakes, tofu cheesecake, and more. Also try the queso and Dave's enchiladas. Breakfast all day.
+
+Opal Divine's. Serving up American food menu at four Austin locations, all of which have large outdoor decks for those who prefer to dine or enjoy an adult beverage with nature.
+
+Thundercloud Subs. A local Sandwich deli with over 27 locations around town. Known for its 'Keep Austin Weird' atmosphere and 'Thunder sauce.'
+
+Whole Foods Market Cafe. Vegetarian-friendly grocery store with numerous food bars offering vegan and vegetarian options. Whole Foods' flagship store is in Austin.
+"""
+
+This template would pick up the word "tacos" in the paragraph beginning with "Kerbey Lane Cafe" and create a question "What dishes is Austin known for?", with "Kerbey Lane Cafe. 24 hours. This Austin favorite ..." as the answer.

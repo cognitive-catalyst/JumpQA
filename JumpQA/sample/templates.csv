@@ -1,0 +1,2 @@
+Template ID	Template Class	Answer Size	Match Size	Question	Search 1	Search 2	Words 1	Words 2	Words 3	Clean
+0	TextTemplate	paragraph	sentence	What is [s0]?	\b(:.*)?is (an?|the)\b		bad.words	boundary.words		true
